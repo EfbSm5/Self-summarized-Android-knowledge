@@ -1,0 +1,31 @@
+Jvav 基础
+
+死锁原因：
+互斥条件（Mutual Exclusion）
+资源在任意时刻只能被一个进程使用。其他请求该资源的进程必须等待。
+请求与保持条件（Hold and Wait）：
+进程已经持有至少一个资源，但又提出了新的资源请求，而该新资源已被其他进程占有。此时，该进程被阻塞，但它并不释放自己已持有的资源。
+不可剥夺条件（No Preemption）：
+进程已获得的资源，在未使用完之前，不能被其他进程强行剥夺，只能由该进程主动释放。
+循环等待条件（Circular Wait）：
+存在一种进程资源的循环等待链。链中的每一个进程都在等待下一个进程所持有的资源。
+
+synchronized和lock的区别
+syschronized是jvm层面实现，可以自动释放，不可中断，非公平，更原始
+lock是api层面，可以手动中断，可以非阻塞获取锁，超时获取锁，
+synchronized是jvm实现，所以是系统管理，不需要手动释放，lock是程序员管理，需要手动释放，lock可以按照时间等，synchronized只会一直等。lock可以先来后到，synchronized不行，lock可以condition
+一般优先用synchronized，简洁不出错，当需要非阻塞的获取锁，响应中断地获取锁，超时获取锁，需要公平锁，有condition
+同步锁
+synchronized 是通过jvm的对象头进行处理并发，jvm锁有一个升级过程
+
+jni调用c代码
+两个部分，java调用c函数，c回调java 访问java字段
+java先native声明，System.loadLibrary("hello")实现调用
+javac -h生成头文件
+c实现头文件函数
+c编译成动态链接库
+
+c会传入一系列jni类型，会通过一些方法进行处理。对于一些基础类型，可以直接使用，但是一些引用类型需要进行转化，比如GetStringUTFChars
+
+类加载：
+加载 验证 准备 解析 初始化

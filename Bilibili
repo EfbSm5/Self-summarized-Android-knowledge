@@ -1,0 +1,12 @@
+Bilibili
+
+随便问了问项目相关
+看到ffmpeg问jni//
+activity生命周期，被遮住了是调用什么//
+四种启动模式//
+listview 和 recyclerview ,假如recyclerview也卡是什么原因//
+handler 
+binder
+ANR，为什么会ANR，除了activity之外三个组件还有什么可能导致ANR，service卡了多久报ANR，ANR怎么办
+死锁，死锁原因，死锁避免//
+如何保证并发数据安全

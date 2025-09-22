@@ -1,0 +1,70 @@
+View的渲染流程
+测量，布局，绘制
+测量主要是确定每个view和viewgroup的大小，这是一个从顶到下的过程，从decorview开始，每个viewgroup根据父容器传递的测量规格，将自己的约束传递给子view,询问子view想要多大，这个过程中，整个视图树可能被遍历多次，如果一个子view的测量结果影响了其他视图的尺寸（比如weight属性），可能会需要更多次测量
+布局确定具体位置，与测量相似
+绘制
+将view的实际内容绘制到屏幕上的canvas,这也是自顶向下的递归过程，但是绘制顺序可以由onDraw方法影响，
+硬件加速
+在现代android为了提升性能会启用硬件加速，不开启的话，指令直接在cpu执行，结果写入bitmap，开启硬件加速后，onDraw的绘制命令不会被立刻执行，而是记录到显示列表中，最终这个显示列表会被同步到一个renderthread,这个线程使用GPU将命令转换为实际的OpenGL或者Vulkan指令，进行光栅化，最终提交给系统进行合成显示
+
+Compose渲染原理
+Composition，layout,draw
+composition是决定要显示什么，compose运行时会构建并维护一个ui描述的数据结构 Slot Table,这个数据结构描述了UI的逻辑结构与状态，而不是直接的绘制指令，当state变化时，compose调度器会安排重组，重组过程中，compose会比较新的ui描述与旧的slot table,找到什么需要重组，从而生成新的ui数
+布局，决定ui位置与大小，其需要测量子项，和决定自身大小和位置，而compose比view好在只用单次测量，避免了view系统多次测量的性能问题
+绘制，与view的硬件加速类似
+
+Retrifit
+接口抽象：用 Java Interface 定义 API，高度抽象且类型安全。
+动态代理：核心魔法。无需编写重复样板代码，在运行时动态处理所有方法调用。
+注解解析：用注解配置请求，声明式编程，代码极其清晰。
+责任链模式：通过“转换器”和“调用适配器”工厂链，功能高度可扩展和解耦。你可以轻松插入自定义逻辑。
+依赖 OkHttp：站在巨人的肩膀上，专注于高层抽象，而让最好的 HTTP 客户端处理底层复杂网络问题。
+
+单activity
+性能好，不需要新开acitivity
+简化状态管理与数据共享
+
+性能优化
+衡量哪里不好
+利用工具找到性能瓶颈 android studio自带
+1。流畅 布局避免过度绘制，减少布局层级
+2.列表优化，recycleview,异步加载，分页加载
+3.避免gc,避免在频繁调用的方法中创建对象，防止造成内存波动
+4.懒加载，避免启动时密集io操作
+5.防止内存泄漏，使用合适的图片尺寸
+6.网络优化
+
+
+
+双亲委托机制
+当类加载器收到加载类的请求时，它首先不会尝试自己加载这个类，而是把这个请求委托给自己的父类加载器去实现，只有父类加载器反馈自己无法加载，子类才会加载
+（顶层）BootClassLoader (加载Framework，核心类库)
+         ↑
+（中间）PathClassLoader (加载已安装的APK，自己的代码和第三方库)
+         ↑
+（底层）DexClassLoader (加载外部Dex/Jar)
+避免自己的类覆盖了系统的类，避免重复加载
+
+ANR
+复杂计算，网络请求，IO操作，线程死锁，主线程等待子线程，binder调用
+ANR会生成traces.txt 其中包含了anr的调用栈信息，可以定位问题
+避免 strictmode
+
+自定义View的执行流程和注意事项。
+还是测量布局绘制
+重写测量的 onMeasure,可以测量计算view应该有多大，需要根据传入的spec模式和自己的内容得到一个希望的大小，当是at_most处理wrap_content，必须调用setMeasuredDimension保存结果,假如是viewGroup还需要重新写onLayout来安排子view,普通view不需要
+重写onDraw,通过canvas和paint进行自定义绘制，避免分配对象，需要支持padding
+invalidate（）触发重绘，requestLayout（）触发重新测量布局
+
+LinearLayout weight权重
+RelativeLayout 相对于
+ConstraintLayout 加强版相对于
+FrameLayout 全部都默认在左上角，可以切换位置
+
+dp显示布局
+sp显示字体
+px底层像素运算
+
+申请权限：
+检查是否有权限ContextCompat.checkSelfPermission（context,permission），没有的话ActivityCompat.shouldShowRequestPermissionRationale，如果第一次就打开权限窗口，requestpermission
+

@@ -29,3 +29,43 @@ c会传入一系列jni类型，会通过一些方法进行处理。对于一些�
 
 类加载：
 加载 验证 准备 解析 初始化
+
+Exception和Error的区别？
+两者都继承了Throwable类，
+Error类描述Java运行时系统内部的错误，Error一般都会导致程序处于非正常，不可恢复的状态，不便于捕捉
+Exception分解为两个分支：RuntimeException,其他异常，由程序错误导致的异常属于RuntimeException；而程序本身没有问题，但由于像I/O错误这类问题导致的异常属于其他异常。
+
+String 不可变，线程安全，每次操作都会生成新的String对象，性能低
+StringBuilder 可变，没有线程安全，性能高
+StringBuffer 可变，线程安全，性能相对低
+
+final形容类，属性，方法，其表示不能重新赋值，不可以继承，不可以重写
+finally是try catch结束后必定调用的
+finalize是析构函数
+
+int是基本类型，intenger是类的对象，性能更弱，可以支持方法，可以泛型，需要null,集合，泛型，反射，框架用
+
+==比较是否是同一个对象或者和基本值是否相同
+equals默认是引用是否是相同，一些类重写后表示逻辑内容相同
+hashcode是计算其哈希值，需要保证当equals返回为true,必须要保证hashcode相同，hashCode 与 equals 的核心关系是：equals 判定逻辑相等；hashCode 决定哈希桶位置。Java 规定：如果两个对象 equals 为 true，hashCode 必须相等；反之不要求。违反会导致 HashMap/HashSet 查找、去重异常。实现时只把定义对象逻辑身份的不可变字段纳入二者，重写 equals 必须同步重写 hashCode，并保持与 compareTo 语义尽量一致。
+
+static主要就是保证内存里只有一份，假如是变量就只会在不同类的实例中共享一个值，如果是静态方法就是不依靠实例状态的操作，静态的代码块一次性初始化，接口中的静态方法不会被类继承，
+
+重写override 是多态的体现
+重载是换参数，提供一个不同参数的调用方法
+
+Java集合
+Collection有 list set quene
+Map 有SortedMap
+
+Runnable和Thread有什么区别？
+Runnable 关注“做什么”——业务逻辑，这是一个接口
+Thread 关注“在哪个独立执行流里跑”——调度、生命周期、线程控制，thread是一个类
+好处：任务与执行策略解耦 → 可以把任务提交给不同的执行环境（Thread、线程池、定时器）
+runnable也可以被不同线程复用
+
+静态方法，静态内部类，不能访问类非静态的属性和方法，内部类可以但是依赖一个外部类实例
+
+
+Arraylist扩容
+HashMap数据结构存储机制

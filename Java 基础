@@ -66,6 +66,9 @@ runnable也可以被不同线程复用
 
 静态方法，静态内部类，不能访问类非静态的属性和方法，内部类可以但是依赖一个外部类实例
 
+ThreadPoolExecutor 通过 三步策略（先核心、再排队、再非核心）+ 有界队列 + 拒绝策略 控制并发，核心线程是基础常驻执行单元，非核心用于峰值扩展；任务调度依赖阻塞队列，线程回收取决于 keepAliveTime 与 allowCoreThreadTimeOut，默认 Executors 一些工厂方法有无界风险，最佳实践是手动显式参数化创建。
 
 Arraylist扩容
 HashMap数据结构存储机制
+LRU
+java内存模型

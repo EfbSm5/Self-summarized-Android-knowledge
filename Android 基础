@@ -13,6 +13,9 @@ composition是决定要显示什么，compose运行时会构建并维护一个ui
 布局，决定ui位置与大小，其需要测量子项，和决定自身大小和位置，而compose比view好在只用单次测量，避免了view系统多次测量的性能问题
 绘制，与view的硬件加速类似
 
+XML 布局的“加载”就是 LayoutInflater 读取 XML，按标签创建 View，解析并应用属性与样式，递归组装成 View 树，并根据需要附加到父容器的过程。你在 XML 写的每个节点，最终都会走到“构造函数 + 属性解析 + LayoutParams 生成 + 递归添加”的这条链路。
+XML布局的加载就是LayoutInflater读取XML,按标准创建View，解析并应用属性与样式，递归组装成View树，根据需要附加到父容器。
+
 Retrifit
 接口抽象：用 Java Interface 定义 API，高度抽象且类型安全。
 动态代理：核心魔法。无需编写重复样板代码，在运行时动态处理所有方法调用。

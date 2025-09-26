@@ -55,6 +55,7 @@ Service 启动机制
 3.bindService,这service可以进行消息互通，有绑定关系，退出activity,service也会关闭
 4.又startService也bind，这样没有绑定，即使activity退出也会运行，也可以传输数据
 5.前台服务，startForegroundService，服务里startForeground，适合需要强提醒的
+假如是StartService生成的service,onCreate->onStartCommand()->onDestory() onStartCommand()返回整数值，描述系统杀死服务怎么重启
 
 双亲委托机制
 当类加载器收到加载类的请求时，它首先不会尝试自己加载这个类，而是把这个请求委托给自己的父类加载器去实现，只有父类加载器反馈自己无法加载，子类才会加载

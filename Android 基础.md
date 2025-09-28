@@ -101,4 +101,8 @@
 - 拦截的不可逆性：一旦父容器 (ViewGroup) 决定拦截（onInterceptTouchEvent 返回 true），当前手势序列的所有后续事件都会直接交给它的 onTouchEvent 处理，而不会再询问 onInterceptTouchEvent，也不会再分发给子 View。
 - 消费的决定性：如果一个 View 消费了 ACTION_DOWN 事件，它就成了这个手势序列的“主角”，后续事件都归它处理。
 - 责任回溯：如果事件一直向下分发，直到最内层的子 View 的 onTouchEvent 也没有被消费，那么事件会依次向上回溯，交给父容器的 onTouchEvent 处理。如果所有父容器都不处理，最终这个事件会被 Activity 的 onTouchEvent 接收。
-- requestDisallowInterceptTouchEvent()：这是一个非常重要的方法。子 View 可以通过调用父容器的这个方法，请求父容器不要拦截当前及后续的事件。这在处理滑动冲突时非常有用（例如，子 View 是横向滑动的 ViewPager，父容器是纵向滑动的 ScrollView）。
+- requestDisallowInterceptTouchEvent()：这是一个非常重要的方法。子 View 可以通过调用父容器的这个方法，请求父容器不要拦截当前及后续的事件。这在处理滑动冲突时非常有用（例如，子 View 是横向滑动的 ViewPager，父容器是纵向滑动的 ScrollView）。  
+  
+
+
+  

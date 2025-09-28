@@ -91,4 +91,6 @@
   - 例：Host: apigo.cn
 - 请求体：可选（如 POST/PUT 携带数据）
 
----
+---  
+# Http 长连接  
+- 

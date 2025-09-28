@@ -1,41 +1,36 @@
-# ViewModel
-- 生命周期  
-    ViewModel并不直接绑定到UI组件的可见生命周期，而绑定在宿主的生命周期范围。在同一 Activity Fragment 的配置变化中复用同一个 ViewModel 实例，只有在彻底finish才会销毁。对于navigation，是绑定在NavBackStackEntry
-
-# LifeCycle   
-- 原理   
-    在API < 29 之前，采用的是ReportFragment监听Activity生命周期，29之后，ComponentActivity继承了LifecycleOwner。ActivityLifecycleCallbacks生命周期回调。事件分发的处理逻辑在LifecycleRegistry类中，只有当宿主状态变更或者新增观察者两种情况，才会给观察者下发状态。  
-
-# Room    
-- 原理  
-Room 是对 SQLite 的类型安全封装。底层仍是 SQLiteDatabase，但通过注解处理器在编译期生成样板代码，提供类型映射、SQL 校验与更友好的 API。   
-- 优势  
-1. 注解处理器在编译时解析 SQL，验证表/列是否存在、参数/返回类型是否匹配，提前发现语法或类型错误。  
-2. 复杂类型通过 @TypeConverter 映射为 SQLite 支持的类型。  
-3. 支持返回 Flow ，LiveData 等数据。
-4. 主线程运行会直接报错，避免主线程 IO 操作
-
-# ViewBinding    
-- 原理  
-    在编译器直接通过 XML 文件生成对应的 Java/Kotlin 类，比如ActivityMainBinding。生成的绑定类包含了对布局中所有视图的强类型引用，避免了 findViewById 的使用。
-- 优势  
-1.  类型安全：编译时检查，避免运行时错误
-2.  空安全：自动处理可能为空的视图引用
-3. 性能优化：避免了运行时的视图查找开销 
-    
 # LiveData  
-- 原理
-    通过observe方法注册观察者，会将 owner 的 Lifecycle 传入，将Observer与LifeCycleOwner组合成新的观察者包装类，进而实现绑定以及生命周期感知，只有合适的生命周期才会接收数据回调。
-- 基本结构 
-LiveData 持有一个数据值 mData 和一个版本号 mVersion，观察者记录其最后一次接受的版本号。
-- 优势  
-1. 实时数据刷新，当组件处于活跃状态或者从不活跃状态到活跃状态时总是能收到最新的数据。
-2. 有生命周期，只有在活跃时才会更新，也不会出现内存泄漏
+- 基本结构，生命周期感知，数据设置与分发，粘性行为，订阅管理与线程安全  
+1. 基本结构，LiveData 持有一个数据值 mData 和一个版本号 mVersion ，观察者记录其最后一次接受的版本号  
+2. 生命周期感知，观察者通过 observe 注册时，会将 owner 的 Lifecycle 传入，创建 LifecycleBoundObserver ，监听生命周期时事件，只有只有在 Lifecycle 为 STARTED 或 RESUMED（即 ACTIVE）时，才会接收数据回调。  
 
-# DataBinding
+# Room 
+- 编译器代码生成，SQLite 映射，类型适配与转换，线程与事务管理，变更监听和自动刷新。  
+1. 编译器注解处理与代码生成，注解处理器可以在编译的时候读取 room 相关的注解，进行模型校验并生成类型安全的代码，生成具体的 Impl 把注解转成预编译的 SQL，实现RoomDatabase，并检查数据库提前在编译器报错。  
+2. 类型映射，@TypeConverter 将复杂类型序列化为可存储的基本类型  
+3. 默认禁止在主线程做 I/O 操作  
+4. 可以返回 Flow，LiveData 这样的数据
+
+# ViewModel  
+- VM的生命周期  
+ViewModel 的生命周期与其持有者的作用域相绑定，而不是与界面视图绑定。只要作用域还在，ViewModel 就会存活，直到作用域被清理时才会被销毁并调用 onCleared()。  
+
+# DataBinding  
 - 原理  
-  遍历 layout 生成对应的Binding类，其中间包括对应 View 的缓存，bind 静态方法，布局中字段的 setter，在布局中的@{}表达式会在编译期就被解析，避免运行时反射，当调用 binding.setVm(user)，databinding 会标记相应的 dirty flag,请求一次rebind,在更新中只更新脏标记位。
-- 双向绑定   
-    1. 数据 -> View：像普通绑定一样在 executeBindings() 设置 text。
-    2. View -> 数据：为 EditText 等属性生成 InverseBindingListener，监听用户输入变化（TextWatcher），再调用对应的 setter（vm.setName(...) 或 ObservableField.set(...)）。
-相较于 ViewBinding ，提供数据驱动 UI ，表达式，自动监听与最小更新，但是编译更重，性能要求更大
+    1. 编译器注解处理与代码生成，  
+    xml文件会生成一个 Binding 类，继承自 ViewDataBinding ，包括布局中生命的字段 setter ，view的缓存引用，表达式求值，布局中的 @{} 表达式在编译期被解析，转成强类型的 Java/Kotlin 代码，避免运行时反射  
+    2. 运行期绑定与脏标记机制  
+    当调用binding.setVm或者给LiveData 设置新值时，DataBinding会标记相应的dirty flag,请求一次rebind,在下一个帧对相应的View做最小化更新，避免整树刷新  
+    3. 可观察数据与监听接入  
+    Observable 及 LiveData等都可以生成对应的监听代码，一旦变化会触发更新  
+    4. 双向绑定，view的属性值可以和数据源互相同步。在这个过程中编译器生成两个方向的代码，  
+    数据 -> View：像普通绑定一样在 executeBindings() 设置 text。  
+    View -> 数据：为 EditText 等属性生成 Listener，监听用户输入变化再调用对应的 setter。   
+
+
+# ViewBinding  
+- 原理  
+    ViewBinding 在编译期为每个布局生成一个包含强类型子视图引用的 Binding 类，运行时只在创建时进行一次 findViewById 并缓存，后续通过字段直接访问，做到类型安全、低开销、零反射的视图绑定。
+
+
+# LifyCycle  
+Lifecycle只是定义了对观察者的存储操作。  状态的处理和最终的分发，是经过LifecycleRegistry遍历调用实现的。如果API的版本 大于等于 29，则使用LifecycleCallbacks这种方式。如果小于29，则通过添加一个透明的ReportFragment来监听生命周期。

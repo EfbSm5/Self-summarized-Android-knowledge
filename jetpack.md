@@ -26,11 +26,9 @@ ViewModel 的生命周期与其持有者的作用域相绑定，而不是与界�
     数据 -> View：像普通绑定一样在 executeBindings() 设置 text。  
     View -> 数据：为 EditText 等属性生成 Listener，监听用户输入变化再调用对应的 setter。   
 
-
 # ViewBinding  
 - 原理  
     ViewBinding 在编译期为每个布局生成一个包含强类型子视图引用的 Binding 类，运行时只在创建时进行一次 findViewById 并缓存，后续通过字段直接访问，做到类型安全、低开销、零反射的视图绑定。
 
-
 # LifyCycle  
-Lifecycle只是定义了对观察者的存储操作。  状态的处理和最终的分发，是经过LifecycleRegistry遍历调用实现的。如果API的版本 大于等于 29，则使用LifecycleCallbacks这种方式。如果小于29，则通过添加一个透明的ReportFragment来监听生命周期。
+- Lifecycle只是定义了对观察者的存储操作。  状态的处理和最终的分发，是经过LifecycleRegistry遍历调用实现的。如果API的版本 大于等于 29，则使用LifecycleCallbacks这种方式。如果小于29，则通过添加一个透明的ReportFragment来监听生命周期。

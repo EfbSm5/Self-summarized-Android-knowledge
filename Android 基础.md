@@ -11,7 +11,7 @@
 # Fragment  
 Fragment 是 Activity 的“子界面”，可以独立管理生命周期与 UI。  
 - 生命周期  
-onAttach->onCreate->onCreateView（返回View对象）->onViewCreated(初始化交互逻辑)->onActivityCreated->onStart->onResume->onPause->onStop->onDestoryView->onDestory->onDetach()  
+onAttach->onCreate->onCreateView（返回View对象）->onViewCreated(初始化交互逻辑)->onStart->onResume->onPause->onStop->onDestoryView->onDestory->onDetach()  
 
 # Service 启动机制
 写好Intent之后  
@@ -26,7 +26,7 @@ onAttach->onCreate->onCreateView（返回View对象）->onViewCreated(初始化�
 - 测量主要是确定每个view和viewgroup的大小，这是一个从顶到下的过程，从decorview开始，每个viewgroup根据父容器传递的测量规格，将自己的约束传递给子view,询问子view想要多大，这个过程中，整个视图树可能被遍历多次，如果一个子view的测量结果影响了其他视图的尺寸（比如weight属性），可能会需要更多次测量
 - 布局确定具体位置，与测量相似
 - 绘制
-  将view的实际内容绘制到屏幕上的canvas,这也是自顶向下的递归过程，但是绘制顺序可以由onDraw方法影响，
+  将view的实际内容绘制到屏幕上的canvas，这也是自顶向下的递归过程，但是绘制顺序可以由onDraw方法影响
 - 硬件加速
   在现代android为了提升性能会启用硬件加速，不开启的话，指令直接在cpu执行，结果写入bitmap，开启硬件加速后，onDraw的绘制命令不会被立刻执行，而是记录到显示列表中，最终这个显示列表会被同步到一个renderthread,这个线程使用GPU将命令转换为实际的OpenGL或者Vulkan指令，进行光栅化，最终提交给系统进行合成显示
 
@@ -37,7 +37,6 @@ onAttach->onCreate->onCreateView（返回View对象）->onViewCreated(初始化�
 - invalidate（）触发重绘，requestLayout（）触发重新测量布局
 
    
-
 # 事件分发
 - 核心思想：协作与责任传递
 - dispatchTouchEvent 返回是继续往下传达处理还是返回上级
@@ -70,6 +69,11 @@ Handler 发送 Message → 入队 MessageQueue->Looper 不断循环，取出 Mes
 
 # RecyclerView   
 - RecyclerView 的复用是“按 viewType 分类的多级缓存 + 统一的 ViewHolder 框架”。当某个 item 滑出屏幕时，其 ViewHolder 被回收到缓存/池中；当新 item 需要显示时，从这些缓存优先取可复用的 ViewHolder，尽量避免新建与全量绑定，从而提升性能与流畅度。
+- 缓存机制。  
+  1. Scrap 缓存（屏幕内还在使用的复用） 
+  2. CachedViews（屏幕外缓存）
+  3. RecycledViewPool（全局缓存池）
+
 
 # OOM  
 - 常见原因：
@@ -144,12 +148,12 @@ Handler 发送 Message → 入队 MessageQueue->Looper 不断循环，取出 Mes
 # 性能优化
 - 衡量哪里不好
 - 利用工具找到性能瓶颈 android studio自带
-  1。流畅 布局避免过度绘制，减少布局层级
-  2.列表优化，recycleview,异步加载，分页加载
-  3.避免gc,避免在频繁调用的方法中创建对象，防止造成内存波动
-  4.懒加载，避免启动时密集io操作
-  5.防止内存泄漏，使用合适的图片尺寸
-  6.网络优化
+  1. 流畅 布局避免过度绘制，减少布局层级
+  2. 列表优化，recycleview,异步加载，分页加载
+  3. 避免gc,避免在频繁调用的方法中创建对象，防止造成内存波动
+  4. 懒加载，避免启动时密集io操作
+  5. 防止内存泄漏，使用合适的图片尺寸
+  6. 网络优化
 
 
 # 常见布局
@@ -166,7 +170,21 @@ Handler 发送 Message → 入队 MessageQueue->Looper 不断循环，取出 Mes
 # 申请权限
 - 检查是否有权限ContextCompat.checkSelfPermission（context,permission），没有的话ActivityCompat.shouldShowRequestPermissionRationale，如果第一次就打开权限窗口，requestpermission
 
+# WebView
+View组件，可以用来渲染HTML界面，可以显示远程网页，本地HTML文件，显示字符串拼接的HTML内容。
+- 与Android交互  
+可以在 Android 端注册一个jsinterface对象，让网页端的 JS 调用，也可以让Android调用网页中的js函数，监听页面事件，
 
-
-
+# 程序遇到异常退出，怎么知道（客户的手机上crash，怎么捕获并传到服务端）  
+- 在 Application 安装 UncaughtExceptionHandler
+- 崩溃时只写本地文件（原子写入），不要发网络
+- 冷启动后扫描 crash 目录，异步 gzip 上传，成功后删除
   
+# 热修复  
+- 在应用已经安装了以后，开发者还可以动态加载补丁包，在运行时替换出问题的方法，从而修bug不重发版本。
+- 原理：把新Dex放在加载顺序最前面
+  1. 加载补丁 dex（修复包） →
+  2. 用反射拿到 PathClassLoader.pathList.dexElements →
+  3. 将“补丁 dex 的 element”插入到原先 elements 的最前面 →
+  4. 这样当类查找时，优先会在“补丁 dex”中找到修复后的类。
+    

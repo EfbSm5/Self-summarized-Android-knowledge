@@ -54,12 +54,20 @@ onAttach->onCreate->onCreateView（返回View对象）->onViewCreated(初始化�
 - 一致性：提供面向对象的调用方式（代理模式）。
 
 # AIDL  
-- Android Interface Definition Language，用于定义进程间通信接口。编译时生成 Stub 和 Proxy。Client 调用 Proxy，最终通过 Binder 驱动调到 Service 端的 Stub。  支持基本类型、序列化对象、List/Map，但数据结构必须可序列化。  
+- Android Interface Definition Language，用于定义进程间通信接口。定义一个 .aidl 文件声明接口，编译时生成  Stub binder。Client 实现接口，最终通过 Binder 驱动调到 Service 端的 Service。  支持基本类型、序列化对象、List/Map，但数据结构必须可序列化。  
 
-# Handler消息机制  
+# Messenger  
+使用 Handler + Message 封装 Binder，也可以实现 ipc
+
+# Handler
+- 干什么用：线程之间传递消息执行任务  
 - 组成：Message、MessageQueue、Looper、Handler。
 - 流程：
-Handler 发送 Message → 入队 MessageQueue->Looper 不断循环，取出 Message->分发给对应 Handler 处理。  
+Handler 发送 Message → 入队 MessageQueue->Looper 不断循环，取出 Message->分发给对应 Handler 处理。    
+- MessageQueue 的机制  
+MessageQueue 以 Message.when 升序维护一个有序链表；同一时间的消息按插入顺序执行。
+- Handler 运行在哪个线程，取决于它绑定的 Looper 所在线程。
+- post {} 适合执行简单逻辑，sendMessage() 适合传递结构化数据（如任务类型、参数等）
 
 # Compose渲染原理
 - Composition，layout,draw
@@ -72,8 +80,10 @@ Handler 发送 Message → 入队 MessageQueue->Looper 不断循环，取出 Mes
 - 缓存机制。  
   1. Scrap 缓存（屏幕内还在使用的复用） 
   2. CachedViews（屏幕外缓存）
-  3. RecycledViewPool（全局缓存池）
-
+  3. ViewCacheExtension（开发者自定义）
+  4. RecycledViewPool（全局缓存池）
+- ViewHolder  
+ViewHolder 是 RecyclerView 高效复用的“最小工作单元”：承载 itemView 的视图引用与状态，解耦“视图结构创建”和“数据绑定”，显著降低创建/查找视图的成本，同时为缓存与回收机制提供载体。
 
 # OOM  
 - 常见原因：
@@ -188,3 +198,16 @@ View组件，可以用来渲染HTML界面，可以显示远程网页，本地HTM
   3. 将“补丁 dex 的 element”插入到原先 elements 的最前面 →
   4. 这样当类查找时，优先会在“补丁 dex”中找到修复后的类。
     
+# Android内存占用大的场景  
+1. 内存泄漏  
+2. 图片太多  解决：减少图片尺寸，换用更空间更小的格式  
+3. 视频/相机实时画面 原因：显示至少需要双缓冲，解码器帧缓冲也常驻 解决：降低分辨率，需要时开启高分辨率预览，减少中间缓冲尺寸。  
+4. WebView  避免：尽量复用，开启懒加载  。   
+5. 加载超大数据
+
+# 如何绘制canvas，初始化canvas  
+- 自定义控件绘制：onDraw 的 Canvas，最简单、最稳定。
+- 需要离屏合成/重复使用绘制结果：Bitmap + Canvas（离屏）。
+- 需要主动渲染、与 UI 解耦：SurfaceView/TextureView。
+- 想在已有 Texture 上偶尔涂写：TextureView.lockCanvas。  
+- compose, 直接使用Canvas函数，或者modifier.drawBehind就可以。  

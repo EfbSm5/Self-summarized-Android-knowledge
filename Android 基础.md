@@ -75,6 +75,9 @@ MessageQueue 以 Message.when 升序维护一个有序链表；同一时间的�
 - 布局，决定ui位置与大小，其需要测量子项，和决定自身大小和位置，而compose比view好在只用单次测量，避免了view系统多次测量的性能问题
 - 绘制，与view的硬件加速类似
 
+# skia
+跨平台的 2D 图形渲染引擎,把上层的绘图命令（如 drawRect、drawCircle、drawText、drawBitmap）转换为底层的 GPU / CPU 渲染操作。
+
 # RecyclerView   
 - RecyclerView 的复用是“按 viewType 分类的多级缓存 + 统一的 ViewHolder 框架”。当某个 item 滑出屏幕时，其 ViewHolder 被回收到缓存/池中；当新 item 需要显示时，从这些缓存优先取可复用的 ViewHolder，尽量避免新建与全量绑定，从而提升性能与流畅度。
 - 缓存机制。  

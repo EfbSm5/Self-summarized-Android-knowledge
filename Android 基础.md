@@ -141,18 +141,9 @@ ViewHolder 是 RecyclerView 高效复用的“最小工作单元”：承载 ite
 2. 与 SurfaceFlinger 协作完成界面显示。
 3. 负责输入事件的分发。  
 
-
-
 # XML 布局的“加载”
 - XML 布局的“加载”就是 LayoutInflater 读取 XML，按标签创建 View，解析并应用属性与样式，递归组装成 View 树，并根据需要附加到父容器的过程。你在 XML 写的每个节点，最终都会走到“构造函数 + 属性解析 + LayoutParams 生成 + 递归添加”的这条链路。
 - XML布局的加载就是LayoutInflater读取XML,按标准创建View，解析并应用属性与样式，递归组装成View树，根据需要附加到父容器。
-
-# Retrifit
-- 接口抽象：用 Java Interface 定义 API，高度抽象且类型安全。
-- 动态代理：核心魔法。无需编写重复样板代码，在运行时动态处理所有方法调用。
-- 注解解析：用注解配置请求，声明式编程，代码极其清晰。
-- 责任链模式：通过“转换器”和“调用适配器”工厂链，功能高度可扩展和解耦。你可以轻松插入自定义逻辑。
-- 依赖 OkHttp：站在巨人的肩膀上，专注于高层抽象，而让最好的 HTTP 客户端处理底层复杂网络问题。
 
 # 单activity
 - 性能好，不需要新开acitivity
@@ -214,3 +205,9 @@ View组件，可以用来渲染HTML界面，可以显示远程网页，本地HTM
 - 需要主动渲染、与 UI 解耦：SurfaceView/TextureView。
 - 想在已有 Texture 上偶尔涂写：TextureView.lockCanvas。  
 - compose, 直接使用Canvas函数，或者modifier.drawBehind就可以。  
+
+# 隐式启动  
+当你调用 startActivity(intent) 或 startService(intent) 时，AMS（ActivityManagerService）会：
+1. 在系统已安装应用的 AndroidManifest.xml 里查找所有声明了 <intent-filter> 的组件
+2. 用“匹配规则”逐一对比你的 Intent 与每个 filter
+3. 找到“最匹配”的一个或多个目标。如果多个同级匹配，弹出选择器让用户选；若无匹配则抛出 ActivityNotFoundException

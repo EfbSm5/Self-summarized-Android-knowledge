@@ -16,16 +16,28 @@
 # crossinline/noinline 
 noinline 禁止某参数内联；crossinline 禁止非局部返回（如直接 return 跳出外层函数），保证可在不同上下文安全调用，inline直接进行内联。
 
-# apply 的底层原理
+# kotlin拓展函数
+## apply
+- 底层原理  
  inline + receiver lambda：inline fun <T> T.apply(block: T.() -> Unit): T。
+- 在方法体内通过this访问对象，返回对象本身
+## also  
+- 在方法体内通过it访问对象，返回对象本身，常用于添副作用
+## run
+- 方法体内通过 this 访问对象，返回block的结果（即最后一行）
+## let
+- 方法体内通过it 访问对象，返回block结果
 
- # kotlin的apply和also有什么区别
+ ## kotlin的apply和also有什么区别
  - 相同点：apply 和 also 都是作用域函数，默认 inline，返回原对象本身，常用于链式调用与初始化时的副作用。
  - 区别  
     apply：把对象作为接收者 this 传入；在 lambda 内直接访问成员；返回对象本身。适合“配置该对象”的初始化场景。  
     also：把对象作为参数 it 传入；更强调“对该对象做点额外的事（副作用）”；返回对象本身。适合调试、日志、校验、统计等不改变业务主线的旁路操作。     
 要“改这个对象的属性/调用它的方法并继续返回它”：用 apply  
 要“顺带做点事，但不改变对象本身（例如日志/校验/注册）”：用 also
+
+# with
+不是拓展函数，用法与run相同
 
 # by委托  
 “by 委托”是 Kotlin 提供的委托语法糖，用来把某些职责转交给“委托对象”来实现。主要有两大类场景：

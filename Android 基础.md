@@ -21,6 +21,11 @@ onAttach->onCreate->onCreateView（返回View对象）->onViewCreated(初始化�
 4. 前台服务，startForegroundService，服务里startForeground，适合需要强提醒的
 - 假如是StartService生成的service,onCreate->onStartCommand()->onDestory() onStartCommand()返回整数值，描述系统杀死服务怎么重启    
 
+# 为什么用Service,不用thread
+Thread 解决的是“并发问题”，
+Service 解决的是“生命周期问题”。
+线程只是一个执行单元，而 Service 是系统级组件，有生命周期管理、进程隔离、前后台控制、持久运行能力。Service的生命周期独立于Activity,系统会尽力保活
+
 # View的渲染流程
 - 测量，布局，绘制
 - 测量主要是确定每个view和viewgroup的大小，这是一个从顶到下的过程，从decorview开始，每个viewgroup根据父容器传递的测量规格，将自己的约束传递给子view,询问子view想要多大，这个过程中，整个视图树可能被遍历多次，如果一个子view的测量结果影响了其他视图的尺寸（比如weight属性），可能会需要更多次测量
